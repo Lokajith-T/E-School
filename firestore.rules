@@ -1,0 +1,132 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function getUserData() {
+      let doc = get(/databases/$(database)/documents/users/$(request.auth.uid));
+      return doc != null ? doc.data : null;
+    }
+    
+    function getRole() {
+      let data = getUserData();
+      return data != null ? data.role : null;
+    }
+    
+    function getUserSchoolId() {
+      let data = getUserData();
+      return data != null ? data.schoolId : null;
+    }
+    
+    function isAdmin(schoolId) {
+      return isAuthenticated() && getRole() == 'admin' && getUserSchoolId() == schoolId;
+    }
+    
+    function isTeacher(schoolId) {
+      return isAuthenticated() && getRole() == 'teacher' && getUserSchoolId() == schoolId;
+    }
+    
+    function isStudent(schoolId) {
+      return isAuthenticated() && getRole() == 'student' && getUserSchoolId() == schoolId;
+    }
+
+    function isParent() {
+      return isAuthenticated() && getRole() == 'parent';
+    }
+
+    match /users/{userId} {
+      // Users can read their own profile. Admins can read users in their school.
+      allow read: if isAuthenticated() && (request.auth.uid == userId || (resource != null && isAdmin(resource.data.schoolId)));
+      allow create: if isAuthenticated() && isAdmin(request.resource.data.schoolId);
+      allow update, delete: if isAuthenticated() && isAdmin(resource.data.schoolId);
+    }
+    
+    match /schools/{schoolId} {
+      allow read: if isAuthenticated() && getUserSchoolId() == schoolId;
+      allow write: if isAdmin(schoolId);
+    }
+    
+    match /students/{studentId} {
+      allow read: if isAuthenticated() && (
+        request.auth.uid == resource.data.uid ||
+        (request.auth.uid in resource.data.parentIds) ||
+        isAdmin(resource.data.schoolId) ||
+        isTeacher(resource.data.schoolId)
+      );
+      allow create: if isAdmin(request.resource.data.schoolId);
+      allow update, delete: if isAdmin(resource.data.schoolId);
+    }
+    
+    match /teachers/{teacherId} {
+      allow read: if isAuthenticated() && (
+        request.auth.uid == resource.data.uid ||
+        isAdmin(resource.data.schoolId) ||
+        isTeacher(resource.data.schoolId) ||
+        isStudent(resource.data.schoolId)
+      );
+      allow create: if isAdmin(request.resource.data.schoolId);
+      allow update, delete: if isAdmin(resource.data.schoolId);
+    }
+    
+    match /classes/{classId} {
+      allow read: if isAuthenticated() && getUserSchoolId() == resource.data.schoolId;
+      allow create: if isAdmin(request.resource.data.schoolId);
+      allow update, delete: if isAdmin(resource.data.schoolId);
+    }
+    
+    match /subjects/{subjectId} {
+      allow read: if isAuthenticated() && getUserSchoolId() == resource.data.schoolId;
+      allow create: if isAdmin(request.resource.data.schoolId);
+      allow update, delete: if isAdmin(resource.data.schoolId);
+    }
+    
+    match /attendance/{attendanceId} {
+      allow read: if isAuthenticated() && getUserSchoolId() == resource.data.schoolId;
+      allow create: if isTeacher(request.resource.data.schoolId) || isAdmin(request.resource.data.schoolId);
+      allow update, delete: if isTeacher(resource.data.schoolId) || isAdmin(resource.data.schoolId);
+    }
+    
+    match /homework/{homeworkId} {
+      allow read: if isAuthenticated() && getUserSchoolId() == resource.data.schoolId;
+      allow create: if isTeacher(request.resource.data.schoolId) || isAdmin(request.resource.data.schoolId);
+      allow update, delete: if isTeacher(resource.data.schoolId) || isAdmin(resource.data.schoolId);
+    }
+    
+    match /marks/{markId} {
+      allow read: if isAuthenticated() && getUserSchoolId() == resource.data.schoolId;
+      allow create: if isTeacher(request.resource.data.schoolId) || isAdmin(request.resource.data.schoolId);
+      allow update, delete: if isTeacher(resource.data.schoolId) || isAdmin(resource.data.schoolId);
+    }
+
+    match /timetable/{timetableId} {
+      allow read: if isAuthenticated() && getUserSchoolId() == resource.data.schoolId;
+      allow create: if isAdmin(request.resource.data.schoolId);
+      allow update, delete: if isAdmin(resource.data.schoolId);
+    }
+    
+    match /fees/{feeId} {
+      allow read: if isAuthenticated() && getUserSchoolId() == resource.data.schoolId;
+      allow create: if isAdmin(request.resource.data.schoolId);
+      allow update, delete: if isAdmin(resource.data.schoolId);
+    }
+    
+    match /exams/{examId} {
+      allow read: if isAuthenticated() && getUserSchoolId() == resource.data.schoolId;
+      allow create: if isAdmin(request.resource.data.schoolId);
+      allow update, delete: if isAdmin(resource.data.schoolId);
+    }
+    
+    match /leaves/{leaveId} {
+      allow read: if isAuthenticated() && getUserSchoolId() == resource.data.schoolId;
+      allow create: if isAuthenticated() && getUserSchoolId() == request.resource.data.schoolId;
+      allow update, delete: if isAuthenticated() && getUserSchoolId() == resource.data.schoolId;
+    }
+    
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

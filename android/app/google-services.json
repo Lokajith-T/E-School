@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "586643120613",
+    "firebase_url": "https://sentinal-vision-default-rtdb.firebaseio.com",
+    "project_id": "sentinal-vision",
+    "storage_bucket": "sentinal-vision.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:586643120613:android:335660b26bc1b6d2b9cf0c",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_7YcJ0LyfbWifENIwV5EVLMyLlijGf-4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

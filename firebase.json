@@ -1,0 +1,44 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "functions": {
+    "source": "functions"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "sentinal-vision",
+          "appId": "1:586643120613:android:335660b26bc1b6d2b9cf0c",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "sentinal-vision",
+          "configurations": {
+            "android": "1:586643120613:android:335660b26bc1b6d2b9cf0c",
+            "ios": "1:586643120613:ios:390edfafc3d0467fb9cf0c",
+            "macos": "1:586643120613:ios:390edfafc3d0467fb9cf0c",
+            "web": "1:586643120613:web:d455e7a19c69dfa9b9cf0c",
+            "windows": "1:586643120613:web:f9e9ca2742e6d7cbb9cf0c"
+          }
+        }
+      }
+    }
+  },
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000
+    },
+    "singleProjectMode": true
+  }
+}
